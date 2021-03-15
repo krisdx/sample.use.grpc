@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_package = "sample.use.proto";
+option java_multiple_files = true;
+option java_outer_classname = "JavaGrpcServerBase";
+
+message JavaRequest {
+	string request = 1;
+}
+
+message JavaResponse {
+	string response = 1;
+}
+
+service JavaGrpcServer {
+	rpc unaryCall(JavaRequest) returns (JavaResponse);
+	rpc clientStreaming(stream JavaRequest) returns (JavaResponse);
+	rpc serverStreaming(JavaRequest) returns (stream JavaResponse);
+	rpc biDirectionalStreaming(stream JavaRequest) returns (stream JavaResponse);
+}
+
+// protoc -I . --java_out ../java server.proto --grpc_out ../java --plugin=protoc-gen-grpc=../../../protoc-gen-grpc-java-1.36.0-linux-x86_64.exe
