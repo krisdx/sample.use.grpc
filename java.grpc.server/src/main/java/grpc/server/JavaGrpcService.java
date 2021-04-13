@@ -15,7 +15,7 @@ public class JavaGrpcService extends JavaGrpcServerImplBase {
 		boolean errorResponse = Boolean
 				.parseBoolean(System.getProperty("sample.use.grpc.server.error.response", "false"));
 		if (!errorResponse) {
-			JavaResponse response = JavaResponse.newBuilder().setResponse("Success Response").build();
+			JavaResponse response = JavaResponse.newBuilder().setResponse("Success Server Unary Call Response").build();
 			responseObserver.onNext(response);
 			responseObserver.onCompleted();
 		} else {
@@ -24,14 +24,14 @@ public class JavaGrpcService extends JavaGrpcServerImplBase {
 	}
 
 	@Override
-	public StreamObserver<JavaRequest> clientStreaming(final StreamObserver<JavaResponse> responseObserver) {
+	public StreamObserver<JavaRequest> clientStreaming(final StreamObserver<JavaResponse> clientObserver) {
 		return new StreamObserver<JavaRequest>() {
 
-			private AtomicInteger requestsCount;
+			private AtomicInteger requestsCount = new AtomicInteger(0);
 
-			public void onNext(JavaRequest value) {
+			public void onNext(JavaRequest request) {
 				System.out.println(
-						"clientStreaming call from client: " + value + ", [" + requestsCount.getAndIncrement() + "]");
+						"clientStreaming call from client: " + request + ", [" + requestsCount.getAndIncrement() + "]");
 			}
 
 			public void onError(Throwable t) {
@@ -43,11 +43,11 @@ public class JavaGrpcService extends JavaGrpcServerImplBase {
 				boolean errorResponse = Boolean
 						.parseBoolean(System.getProperty("sample.use.grpc.server.error.response", "false"));
 				if (!errorResponse) {
-					JavaResponse response = JavaResponse.newBuilder().setResponse("Success Response ").build();
-					responseObserver.onNext(response);
-					responseObserver.onCompleted();
+					JavaResponse response = JavaResponse.newBuilder().setResponse("Success Server Client Streaming Call").build();
+					clientObserver.onNext(response);
+					clientObserver.onCompleted();
 				} else {
-					responseObserver.onError(new RuntimeException("Error Response"));
+					clientObserver.onError(new RuntimeException("Error Response"));
 				}
 			}
 		};
@@ -61,7 +61,7 @@ public class JavaGrpcService extends JavaGrpcServerImplBase {
 		if (!errorResponse) {
 			int n = Integer.parseInt(System.getProperty("sample.use.grpc.server.server.streaming.messages.count", "5"));
 			for (int i = 1; i <= n; i++) {
-				JavaResponse response = JavaResponse.newBuilder().setResponse("Success Response " + i).build();
+				JavaResponse response = JavaResponse.newBuilder().setResponse("Success Server Streaming Call Response " + i).build();
 				responseObserver.onNext(response);
 			}
 			responseObserver.onCompleted();
@@ -74,7 +74,7 @@ public class JavaGrpcService extends JavaGrpcServerImplBase {
 	public StreamObserver<JavaRequest> biDirectionalStreaming(final StreamObserver<JavaResponse> responseObserver) {
 		return new StreamObserver<JavaRequest>() {
 
-			private StringBuilder sb;
+			private StringBuilder sb = new StringBuilder();
 
 			public void onNext(JavaRequest request) {
 				System.out.println("biDirectionalStreaming : " + request);
@@ -82,9 +82,8 @@ public class JavaGrpcService extends JavaGrpcServerImplBase {
 				boolean errorResponse = Boolean
 						.parseBoolean(System.getProperty("sample.use.grpc.server.error.response", "false"));
 				if (!errorResponse) {
-					JavaResponse response = JavaResponse.newBuilder().setResponse("Success Response").build();
+					JavaResponse response = JavaResponse.newBuilder().setResponse("Success BiDirectional Call Response").build();
 					responseObserver.onNext(response);
-					responseObserver.onCompleted();
 				} else {
 					responseObserver.onError(new RuntimeException("Error Response"));
 				}

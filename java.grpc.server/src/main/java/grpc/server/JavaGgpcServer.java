@@ -17,8 +17,9 @@ public class JavaGgpcServer {
 	private Interceptor interceptor;
 
 	public void start() throws IOException, InterruptedException {
-		File key = new File(getClass().getResource("/key.pem").getFile());
-		File cert = new File(getClass().getResource("/cert.pem").getFile());
+		
+		File key = new File(JavaGrpcService.class.getResource("/key.pem").getFile());
+		File cert = new File(JavaGrpcService.class.getResource("/cert.pem").getFile());
 
 		service = new JavaGrpcService();
 		interceptor = new Interceptor();
